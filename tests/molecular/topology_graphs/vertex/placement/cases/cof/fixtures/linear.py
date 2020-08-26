@@ -85,6 +85,14 @@ def linear_aligner_edge(request):
             smiles='BrCCNCBr',
             functional_groups=[stk.BromoFactory()],
         ),
+        # stk.BuildingBlock(
+        #     smiles='BrCBr',
+        #     functional_groups=[stk.BromoFactory()],
+        # ),
+        stk.BuildingBlock(
+            smiles='C1CC2(Br)CCC1(Br)CC2',
+            functional_groups=[stk.BromoFactory()],
+        ),
     ),
 )
 def building_block_2(request):
