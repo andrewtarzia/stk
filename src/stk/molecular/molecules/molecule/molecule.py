@@ -363,6 +363,90 @@ class Molecule:
             origin=origin,
         )
 
+    def _with_rotation_to_minimize_angles(
+        self,
+        starts,
+        targets,
+        axis,
+        origin,
+    ):
+
+        # If the vector being rotated is not finite, exit. This is
+        # probably due to a planar molecule.
+        for start in starts:
+            if not all(np.isfinite(x) for x in start):
+                return self
+        for target in targets:
+            if np.allclose(target, [0, 0, 0], atol=1e-15):
+                raise ValueError(
+                    'target has a magnitude of 0. It is therefore not '
+                    'possible to calculate an angle.'
+                )
+
+        self._with_displacement(-origin)
+
+        # 1. Remove any component of the start and target vectors long
+        # the axis. This puts them both on the same plane.
+        # 2. Calculate the angle between them.
+        # 3. Apply the rotation.
+        angles = []
+        for start, target in zip(starts, targets):
+            tstart = start - np.dot(start, axis)*axis
+
+            # If `tstart` is 0, it is parallel to the rotation axis, stop.
+            if np.allclose(tstart, [0, 0, 0], 1e-8):
+                self._with_displacement(origin)
+                return self
+
+            tend = target - np.dot(target, axis)*axis
+            # If `tend` is 0, it is parallel to the rotation axis, stop.
+            if np.allclose(tend, [0, 0, 0], 1e-8):
+                self._with_displacement(origin)
+                return self
+
+            angle = vector_angle(tstart, tend)
+
+            projection = tstart @ np.cross(axis, tend)
+            if projection > 0:
+                angle = 2*np.pi - angle
+
+            if angle > 2*np.pi:
+                angle = angle - 2*np.pi
+
+            angles.append(angle)
+        print(angles)
+        dev_angles = [i-angles[0] for i in angles]
+
+        print(dev_angles)
+
+
+
+        target_angle = angles[0]
+        print(angles, target_angle, np.average(angles))
+        print([np.degrees(i) for i in angles])
+        rotation_matrix = rotation_matrix_arbitrary_axis(
+            target_angle,
+            axis
+        )
+        self._position_matrix = rotation_matrix @ self._position_matrix
+        self._with_displacement(origin)
+        return self
+
+    def with_rotation_to_minimize_angles(
+        self,
+        starts,
+        targets,
+        axis,
+        origin,
+    ):
+
+        return self.clone()._with_rotation_to_minimize_angles(
+            starts=starts,
+            targets=targets,
+            axis=axis,
+            origin=origin,
+        )
+
     def clone(self):
         """
         Return a clone.

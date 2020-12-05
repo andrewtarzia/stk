@@ -240,18 +240,46 @@ class _NonLinearCageVertex(_CageVertex):
             target=edge_normal,
             origin=self._position,
         )
-        fg_bonder_centroid = building_block.get_centroid(
-            atom_ids=next(
-                building_block.get_functional_groups()
-            ).get_placer_ids(),
+        # 
+        # fg_bonder_centroid = building_block.get_centroid(
+        #     atom_ids=next(
+        #         building_block.get_functional_groups()
+        #     ).get_placer_ids(),
+        # )
+        # edge_position = edges[self._aligner_edge].get_position()
+        # building_block = building_block.with_rotation_to_minimize_angle(
+        #     start=fg_bonder_centroid - self._position,
+        #     target=edge_position - edge_centroid,
+        #     axis=edge_normal,
+        #     origin=self._position,
+        # )
+
+        fg_sorter = _FunctionalGroupSorter(building_block)
+        edge_sorter = _EdgeSorter(
+            edges=edges,
+            aligner_edge=edges[self._aligner_edge],
+            axis=fg_sorter.get_axis(),
         )
-        edge_position = edges[self._aligner_edge].get_position()
-        return building_block.with_rotation_to_minimize_angle(
-            start=fg_bonder_centroid - self._position,
-            target=edge_position - edge_centroid,
+        print('fgs', list(fg_sorter.get_items()))
+        starts = [
+            building_block.get_centroid(
+                fg.get_placer_ids()
+            ) - self._position
+            for i in fg_sorter.get_items()
+            for fg in building_block.get_functional_groups(fg_ids=i)
+        ]
+        targets = [
+            edge.get_position() - edge_centroid
+            for edge in edge_sorter.get_items()
+        ]
+        building_block = building_block.with_rotation_to_minimize_angles(
+            starts=starts,
+            targets=targets,
             axis=edge_normal,
             origin=self._position,
-        ).get_position_matrix()
+        )
+
+        return building_block.get_position_matrix()
 
     def map_functional_groups_to_edges(self, building_block, edges):
         # The idea is to order the functional groups in building_block
@@ -269,6 +297,7 @@ class _NonLinearCageVertex(_CageVertex):
             aligner_edge=edges[self._aligner_edge],
             axis=fg_sorter.get_axis(),
         )
+        print('fgsm', list(fg_sorter.get_items()))
         return {
             fg_id: edge.get_id()
             for fg_id, edge in zip(
