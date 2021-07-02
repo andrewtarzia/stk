@@ -378,3 +378,95 @@ class UnaligningVertex(_CofVertex):
         new_vertex._cell = np.array(cell)
         new_vertex._aligner_edge = aligner_edge
         return new_vertex
+
+
+class Linear3DVertex(_CofVertex):
+    def place_building_block(self, building_block, edges):
+        assert (
+            building_block.get_num_functional_groups() == 2
+        ), (
+            f'{building_block} needs to have exactly 2 functional '
+            'groups but has '
+            f'{building_block.get_num_functional_groups()}.'
+        )
+        building_block = building_block.with_centroid(
+            position=self._position,
+            atom_ids=building_block.get_placer_ids(),
+        )
+
+        # Rotate to place fg-fg vector along edge-edge vector.
+        fg, = building_block.get_functional_groups(0)
+        fg_centroid = building_block.get_centroid(fg.get_placer_ids())
+        target = edges[0].get_position() - edges[1].get_position()
+        target *= 1 if self._aligner_edge == 0 else -1
+
+        building_block = building_block.with_rotation_between_vectors(
+            start=fg_centroid - self._position,
+            target=target,
+            origin=self._position,
+        )
+        return building_block.get_position_matrix()
+
+    def map_functional_groups_to_edges(self, building_block, edges):
+        fg, = building_block.get_functional_groups(0)
+        fg_position = building_block.get_centroid(fg.get_placer_ids())
+
+        def fg_distance(edge):
+            return euclidean(edge.get_position(), fg_position)
+
+        print([(fg_distance(i), i) for i in edges])
+        edges = sorted(edges, key=fg_distance)
+        print([(fg_distance(i), i) for i in edges])
+        return {
+            fg_id: edge.get_id() for fg_id, edge in enumerate(edges)
+        }
+
+
+class NonLinear3DVertex(_CofVertex):
+    def place_building_block(self, building_block, edges):
+        assert (
+            building_block.get_num_functional_groups() > 2
+        ), (
+            f'{building_block} needs to have more than 2 functional '
+            'groups but has '
+            f'{building_block.get_num_functional_groups()}.'
+        )
+        # Sort to ensure that for two vertices, which are periodically
+        # equivalent, "edges" has identical ordering. This means that
+        # the aligner_edge is chosen consistently in both cases.
+        edges = sorted(edges, key=lambda edge: edge.get_parent_id())
+
+        building_block = building_block.with_centroid(
+            position=self._position,
+            atom_ids=building_block.get_placer_ids(),
+        )
+
+        fg, = building_block.get_functional_groups(0)
+        fg_centroid = building_block.get_centroid(fg.get_placer_ids())
+        edge_position = edges[self._aligner_edge].get_position()
+        return building_block.with_rotation_to_minimize_angle(
+            start=fg_centroid - self._position,
+            target=edge_position - self._position,
+            axis=np.array([0, 0, 1], dtype=np.float64),
+            origin=self._position,
+        ).get_position_matrix()
+
+    def map_functional_groups_to_edges(self, building_block, edges):
+        # Sort to ensure that for two vertices, which are periodically
+        # equivalent, "edges" has identical ordering. This means that
+        # the aligner_edge is chosen consistently in both cases.
+        edges = sorted(edges, key=lambda edge: edge.get_parent_id())
+
+        fg_sorter = _FunctionalGroupSorter(building_block)
+        edge_sorter = _EdgeSorter(
+            edges=edges,
+            aligner_edge=edges[self._aligner_edge],
+            axis=fg_sorter.get_axis(),
+        )
+        return {
+            fg_id: edge.get_id()
+            for fg_id, edge in zip(
+                fg_sorter.get_items(),
+                edge_sorter.get_items(),
+            )
+        }
