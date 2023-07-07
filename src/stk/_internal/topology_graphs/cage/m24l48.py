@@ -46,8 +46,8 @@ class M24L48(Cage):
                 building_blocks=(four_c_bb, two_c_bb),
             ),
         )
-        rgb1 = [192, 87, 161]
-        rgb2 = [97, 201, 217]
+        rgb1 = [255, 0, 0]
+        rgb2 = [0, 0, 255]
         points = cage.get_num_atoms()
         colour_list = [
             [
