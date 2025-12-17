@@ -45,8 +45,11 @@ Metal-Organic
   M4L6 Tetrahedron Spacer <_autosummary/stk.cage.M4L6TetrahedronSpacer>
   M4L6 Tetrahedron <_autosummary/stk.cage.M4L6Tetrahedron>
   M4L8 <_autosummary/stk.cage.M4L8>
+  M4L8x <_autosummary/stk.cage.M4L8x>
+  M4L82 <_autosummary/stk.cage.M4L82>
   M6L2L3 Prism <_autosummary/stk.cage.M6L2L3Prism>
   M6L12 Cube <_autosummary/stk.cage.M6L12Cube>
   M8L6 Cube <_autosummary/stk.cage.M8L6Cube>
+  M9L18 <_autosummary/stk.cage.M9L18>
   M12L24 <_autosummary/stk.cage.M12L24>
   M24L48 <_autosummary/stk.cage.M24L48>

@@ -6,6 +6,9 @@ from .m4l4_tetrahedron import *  # noqa
 from .m4l6_tetrahedron import *  # noqa
 from .m4l6_tetrahedron_spacer import *  # noqa
 from .m4l8 import *  # noqa
+from .m4l82 import *  # noqa
+from .m4l8x import *  # noqa
+from .m9l18 import *  # noqa
 from .m6l2l3_prism import *  # noqa
 from .m6l12_cube import *  # noqa
 from .m8l6_cube import *  # noqa
