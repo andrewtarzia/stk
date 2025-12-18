@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
-import stk
 from pytest_lazyfixture import lazy_fixture
+
+import stk
 
 from ...case_data import CaseData
 
@@ -11,6 +12,8 @@ from ...case_data import CaseData
         lazy_fixture("center"),
         lazy_fixture("head"),
         lazy_fixture("tail"),
+        lazy_fixture("unaligning"),
+        lazy_fixture("helix"),
     ),
 )
 def case_data(request: pytest.FixtureRequest) -> CaseData:
@@ -67,6 +70,24 @@ def unaligning(
 ) -> CaseData:
     return CaseData(
         vertex=stk.polymer.UnaligningVertex(
+            id=id,
+            position=position,
+            flip=flip,
+        ),
+        id=id,
+        position=position,
+        cell=np.array([0, 0, 0]),
+    )
+
+
+@pytest.fixture
+def helix(
+    id: int,
+    position: tuple[float, float, float] | np.ndarray,
+    flip: bool,
+) -> CaseData:
+    return CaseData(
+        vertex=stk.polymer.HelixVertex(
             id=id,
             position=position,
             flip=flip,
