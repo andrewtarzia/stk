@@ -20,9 +20,12 @@ from stk._internal.topology_graphs.cage.m4l6_tetrahedron_spacer import (
     M4L6TetrahedronSpacer,
 )
 from stk._internal.topology_graphs.cage.m4l8 import M4L8
+from stk._internal.topology_graphs.cage.m4l8x import M4L8x
+from stk._internal.topology_graphs.cage.m4l82 import M4L82
 from stk._internal.topology_graphs.cage.m6l2l3_prism import M6L2L3Prism
 from stk._internal.topology_graphs.cage.m6l12_cube import M6L12Cube
 from stk._internal.topology_graphs.cage.m8l6_cube import M8L6Cube
+from stk._internal.topology_graphs.cage.m9l18 import M9L18
 from stk._internal.topology_graphs.cage.m12l24 import M12L24
 from stk._internal.topology_graphs.cage.m24l48 import M24L48
 from stk._internal.topology_graphs.cage.one_plus_one import OnePlusOne
@@ -61,6 +64,9 @@ __all__ = [
     "M12L24",
     "M24L48",
     "M4L8",
+    "M4L8x",
+    "M4L82",
+    "M9L18",
     "M3L6",
     "SixPlusEight",
     "OnePlusOne",

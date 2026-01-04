@@ -1,6 +1,6 @@
 """
-M3L6
-====
+M4L82
+=====
 
 """
 
@@ -12,7 +12,7 @@ from .cage import Cage
 from .vertices import LinearVertex, NonLinearVertex
 
 
-class M3L6(Cage):
+class M4L82(Cage):
     """
     Represents a cage topology graph.
 
@@ -44,7 +44,7 @@ class M3L6(Cage):
         )
 
         cage = stk.ConstructedMolecule(
-            topology_graph=stk.cage.M3L6(
+            topology_graph=stk.cage.M4L82(
                 building_blocks=(bb1, bb2),
             ),
         )
@@ -100,7 +100,7 @@ class M3L6(Cage):
         )
 
         cage = stk.ConstructedMolecule(
-            topology_graph=stk.cage.M3L6(
+            topology_graph=stk.cage.M4L82(
                 building_blocks=(bb1, bb2),
                 optimizer=stk.MCHammer(),
             ),
@@ -141,121 +141,95 @@ class M3L6(Cage):
     :class:`.BuildingBlock`, with the following number of functional
     groups, needs to be assigned to each of the following vertex ids:
 
-        | 4-functional groups: 0 to 2
-        | 2-functional groups: 3 to 8
+        | 4-functional groups: 0 to 3
+        | 2-functional groups: 4 to 11
 
     See :class:`.Cage` for more details and examples.
 
     """
 
-    _R, _theta = 1, 0
+    _non_linears = (
+        NonLinearVertex(0, np.array([0, 0, np.sqrt(6) / 2])),
+        NonLinearVertex(1, np.array([-1, -np.sqrt(3) / 3, -np.sqrt(6) / 6])),
+        NonLinearVertex(2, np.array([1, -np.sqrt(3) / 3, -np.sqrt(6) / 6])),
+        NonLinearVertex(3, np.array([0, 2 * np.sqrt(3) / 3, -np.sqrt(6) / 6])),
+    )
+
+    paired_wall_1_coord = (
+        sum(
+            vertex.get_position()
+            for vertex in (_non_linears[0], _non_linears[1])
+        )
+        / 2
+    )
+    wall_1_shift = np.array((0.2, 0.2, 0))
+
+    paired_wall_2_coord = (
+        sum(
+            vertex.get_position()
+            for vertex in (_non_linears[2], _non_linears[3])
+        )
+        / 2
+    )
+    wall_2_shift = np.array((0.2, 0.2, 0))
 
     _vertex_prototypes = (
-        NonLinearVertex(
-            id=0,
-            position=np.array([_R * np.cos(_theta), _R * np.sin(_theta), 0]),
-        ),
-        NonLinearVertex(
-            id=1,
-            position=np.array(
-                [
-                    _R * np.cos(_theta + (4 * np.pi / 3)),
-                    _R * np.sin(_theta + (4 * np.pi / 3)),
-                    0,
-                ]
-            ),
-        ),
-        NonLinearVertex(
-            id=2,
-            position=np.array(
-                [
-                    _R * np.cos(_theta + (2 * np.pi / 3)),
-                    _R * np.sin(_theta + (2 * np.pi / 3)),
-                    0,
-                ]
-            ),
-        ),
-        LinearVertex(
-            id=3,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + np.pi / 4)),
-                    _R * np.sin((_theta + np.pi / 4)),
-                    0.5,
-                ]
-            ),
-            use_neighbor_placement=False,
-        ),
+        *_non_linears,
         LinearVertex(
             id=4,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + 1 * np.pi / 3)),
-                    _R * np.sin((_theta + 1 * np.pi / 3)),
-                    -0.5,
-                ]
-            ),
+            position=paired_wall_1_coord + wall_1_shift,
             use_neighbor_placement=False,
         ),
-        LinearVertex(
+        LinearVertex.init_at_center(
             id=5,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + 1 * np.pi / 3) + (4 * np.pi / 3)),
-                    _R * np.sin((_theta + 1 * np.pi / 3) + (4 * np.pi / 3)),
-                    0.5,
-                ]
-            ),
-            use_neighbor_placement=False,
+            vertices=(_non_linears[0], _non_linears[2]),
         ),
-        LinearVertex(
+        LinearVertex.init_at_center(
             id=6,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + 1 * np.pi / 3) + (4 * np.pi / 3)),
-                    _R * np.sin((_theta + 1 * np.pi / 3) + (4 * np.pi / 3)),
-                    -0.5,
-                ]
-            ),
-            use_neighbor_placement=False,
+            vertices=(_non_linears[0], _non_linears[3]),
         ),
-        LinearVertex(
+        LinearVertex.init_at_center(
             id=7,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + 1 * np.pi / 3) + (2 * np.pi / 3)),
-                    _R * np.sin((_theta + 1 * np.pi / 3) + (2 * np.pi / 3)),
-                    0.5,
-                ]
-            ),
+            vertices=(_non_linears[1], _non_linears[2]),
+        ),
+        LinearVertex.init_at_center(
+            id=8,
+            vertices=(_non_linears[1], _non_linears[3]),
+        ),
+        LinearVertex(
+            id=9,
+            position=paired_wall_2_coord + wall_2_shift,
             use_neighbor_placement=False,
         ),
         LinearVertex(
-            id=8,
-            position=np.array(
-                [
-                    _R * np.cos((_theta + 1 * np.pi / 3) + (2 * np.pi / 3)),
-                    _R * np.sin((_theta + 1 * np.pi / 3) + (2 * np.pi / 3)),
-                    -0.5,
-                ]
-            ),
+            id=10,
+            position=paired_wall_1_coord - wall_1_shift,
+            use_neighbor_placement=False,
+        ),
+        LinearVertex(
+            id=11,
+            position=paired_wall_2_coord - wall_2_shift,
             use_neighbor_placement=False,
         ),
     )
 
     _edge_prototypes = (
-        Edge(0, _vertex_prototypes[0], _vertex_prototypes[3]),
-        Edge(1, _vertex_prototypes[0], _vertex_prototypes[4]),
-        Edge(2, _vertex_prototypes[0], _vertex_prototypes[5]),
-        Edge(3, _vertex_prototypes[0], _vertex_prototypes[6]),
-        Edge(4, _vertex_prototypes[1], _vertex_prototypes[5]),
-        Edge(5, _vertex_prototypes[1], _vertex_prototypes[6]),
-        Edge(6, _vertex_prototypes[1], _vertex_prototypes[7]),
-        Edge(7, _vertex_prototypes[1], _vertex_prototypes[8]),
-        Edge(8, _vertex_prototypes[2], _vertex_prototypes[3]),
-        Edge(9, _vertex_prototypes[2], _vertex_prototypes[4]),
-        Edge(10, _vertex_prototypes[2], _vertex_prototypes[7]),
-        Edge(11, _vertex_prototypes[2], _vertex_prototypes[8]),
+        Edge(0, _vertex_prototypes[0], _vertex_prototypes[4]),
+        Edge(1, _vertex_prototypes[0], _vertex_prototypes[5]),
+        Edge(2, _vertex_prototypes[0], _vertex_prototypes[6]),
+        Edge(3, _vertex_prototypes[0], _vertex_prototypes[10]),
+        Edge(4, _vertex_prototypes[1], _vertex_prototypes[4]),
+        Edge(5, _vertex_prototypes[1], _vertex_prototypes[7]),
+        Edge(6, _vertex_prototypes[1], _vertex_prototypes[8]),
+        Edge(7, _vertex_prototypes[1], _vertex_prototypes[10]),
+        Edge(8, _vertex_prototypes[2], _vertex_prototypes[5]),
+        Edge(9, _vertex_prototypes[2], _vertex_prototypes[7]),
+        Edge(10, _vertex_prototypes[2], _vertex_prototypes[9]),
+        Edge(11, _vertex_prototypes[2], _vertex_prototypes[11]),
+        Edge(12, _vertex_prototypes[3], _vertex_prototypes[6]),
+        Edge(13, _vertex_prototypes[3], _vertex_prototypes[8]),
+        Edge(14, _vertex_prototypes[3], _vertex_prototypes[9]),
+        Edge(15, _vertex_prototypes[3], _vertex_prototypes[11]),
     )
 
     _num_windows = 2

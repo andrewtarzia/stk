@@ -4,6 +4,7 @@ import numpy as np
 
 from stk._internal.building_block import BuildingBlock
 from stk._internal.topology_graphs.vertex import Vertex
+from stk._internal.utilities.utilities import normalize_vector
 
 from ..edge import Edge
 
@@ -235,3 +236,88 @@ class UnaligningVertex(LinearVertex):
         edges: tuple[Edge, ...],
     ) -> dict[int, int]:
         return {fg_id: edge.get_id() for fg_id, edge in enumerate(edges)}
+
+
+class HelixVertex(LinearVertex):
+    """Represents a vertex in a helical chain."""
+
+    def place_building_block(
+        self,
+        building_block: BuildingBlock,
+        edges: tuple[Edge, ...],
+    ) -> np.ndarray:
+        building_block = building_block.with_centroid(
+            position=self._position,
+            atom_ids=building_block.get_placer_ids(),
+        )
+
+        if len(edges) == 2:
+            fg_centroid = building_block.get_centroid(
+                atom_ids=next(
+                    building_block.get_functional_groups()
+                ).get_placer_ids(),
+            )
+            edge_position = edges[1 if self._flip else 0].get_position()
+            edge_centroid = sum(edge.get_position() for edge in edges) / len(
+                edges
+            )
+            building_block = building_block.with_rotation_between_vectors(
+                start=fg_centroid - self._position,
+                target=edge_position - edge_centroid,
+                origin=self._position,
+            )
+            core_centroid = building_block.get_centroid(
+                atom_ids=building_block.get_core_atom_ids(),
+            )
+            building_block = building_block.with_rotation_to_minimize_angle(
+                start=core_centroid - self._position,
+                target=self._position,
+                axis=normalize_vector(
+                    edges[0].get_position() - edges[1].get_position()
+                ),
+                origin=self._position,
+            )
+
+        elif len(edges) == 1:
+            if building_block.get_num_functional_groups() == 2:
+                (fg,) = building_block.get_functional_groups(
+                    1 if self._flip else 0
+                )
+            else:
+                (fg,) = building_block.get_functional_groups()
+
+            fg_centroid = building_block.get_centroid(fg.get_placer_ids())
+            core_centroid = building_block.get_centroid(
+                atom_ids=building_block.get_core_atom_ids(),
+            )
+            edge_centroid = sum(edge.get_position() for edge in edges) / len(
+                edges
+            )
+            building_block = building_block.with_rotation_between_vectors(
+                start=fg_centroid - core_centroid,
+                target=edge_centroid - self._position,
+                origin=self._position,
+            )
+
+        return building_block.get_position_matrix()
+
+    def map_functional_groups_to_edges(
+        self,
+        building_block: BuildingBlock,
+        edges: tuple[Edge, ...],
+    ) -> dict[int, int]:
+        match len(edges):
+            case 2:
+                fg1_id, fg2_id = self._sort_functional_groups(building_block)
+                edge1_id, edge2_id = self._sort_edges(edges)
+                return {
+                    fg1_id: edge1_id,
+                    fg2_id: edge2_id,
+                }
+            case 1:
+                return {
+                    fg_id: edge.get_id() for fg_id, edge in enumerate(edges)
+                }
+            case _:
+                msg = "Number of edges should be 1 or 2."
+                raise RuntimeError(msg)
