@@ -56,7 +56,7 @@ prescribed functional groups.
     try:
         bb = stk.BuildingBlock.init_from_file("source/_static/bbprep1_in.mol")
     except OSError:
-        bb = stk.BuildingBlock.init_from_file("docs/source/_static/bbprep1_in.mol")
+        bb = stk.BuildingBlock.init_from_file("_static/bbprep1_in.mol")
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
@@ -90,7 +90,7 @@ Becomes:
         )
     except OSError:
         min_molecule = stk.BuildingBlock.init_from_file(
-            "docs/source/_static/bbprep1_out.mol"
+            "_static/bbprep1_out.mol"
         )
 
     moldoc_display_molecule = molecule.Molecule(
@@ -163,7 +163,7 @@ makes it simple to iterate through options, leading to two different cages:
         )
     except OSError:
         bb = stk.BuildingBlock.init_from_file(
-            "docs/source/_static/bbprep2_in.mol"
+            "_static/bbprep2_in.mol"
         )
 
     moldoc_display_molecule = molecule.Molecule(
@@ -197,7 +197,7 @@ makes it simple to iterate through options, leading to two different cages:
         )
     except OSError:
         polymer = stk.BuildingBlock.init_from_file(
-            "docs/source/_static/bbprep2_out.mol"
+            "_static/bbprep2_out.mol"
         )
 
     moldoc_display_molecule = molecule.Molecule(
