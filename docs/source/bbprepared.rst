@@ -53,7 +53,10 @@ prescribed functional groups.
     import moldoc.molecule as molecule
     import stk
 
-    bb = stk.BuildingBlock.init_from_file("source/_static/bbprep1_in.mol")
+    try:
+        bb = stk.BuildingBlock.init_from_file("source/_static/bbprep1_in.mol")
+    except OSError:
+        bb = stk.BuildingBlock.init_from_file("docs/source/_static/bbprep1_in.mol")
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
@@ -81,7 +84,14 @@ Becomes:
     import moldoc.molecule as molecule
     import stk
 
-    min_molecule = stk.BuildingBlock.init_from_file("source/_static/bbprep1_out.mol")
+    try:
+        min_molecule = stk.BuildingBlock.init_from_file(
+            "source/_static/bbprep1_out.mol"
+        )
+    except OSError:
+        min_molecule = stk.BuildingBlock.init_from_file(
+            "docs/source/_static/bbprep1_out.mol"
+        )
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
@@ -147,7 +157,14 @@ makes it simple to iterate through options, leading to two different cages:
     import moldoc.molecule as molecule
     import stk
 
-    bb = stk.BuildingBlock.init_from_file("source/_static/bbprep2_in.mol")
+    try:
+        bb = stk.BuildingBlock.init_from_file(
+            "source/_static/bbprep2_in.mol"
+        )
+    except OSError:
+        bb = stk.BuildingBlock.init_from_file(
+            "docs/source/_static/bbprep2_in.mol"
+        )
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
@@ -174,7 +191,14 @@ makes it simple to iterate through options, leading to two different cages:
     import moldoc.molecule as molecule
     import stk
 
-    polymer = stk.BuildingBlock.init_from_file("source/_static/bbprep2_out.mol")
+    try:
+        polymer = stk.BuildingBlock.init_from_file(
+            "source/_static/bbprep2_out.mol"
+        )
+    except OSError:
+        polymer = stk.BuildingBlock.init_from_file(
+            "docs/source/_static/bbprep2_out.mol"
+        )
 
     moldoc_display_molecule = molecule.Molecule(
         atoms=(
